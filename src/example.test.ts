@@ -57,7 +57,8 @@ afterAll(async () => {
   await orm.close(true);
 });
 
-test('SELECT_IN - .findOne() - returns populated related property', async () => {
+test('SELECT_IN - .findOne()  - returns populated related property', async () => {
+  console.log('SELECT_IN - findOne');
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
   
@@ -79,13 +80,13 @@ test('SELECT_IN - .findOne() - returns populated related property', async () => 
     ],
     strategy: LoadStrategy.SELECT_IN
   });
-  console.log('Select In _testResource: ', _testResource);
 
   expect(_testResource?.entityDirect).toBe('Foo');
   expect(_testResource?.resourceReference?.refEntityDirect).toBe(undefined);
 });
 
-test('JOINED - .findOne() - returns populated related property', async () => {
+test('JOINED    - .findOne()  - returns populated related property', async () => {
+  console.log('JOINED - findOne');
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
 
@@ -112,7 +113,8 @@ test('JOINED - .findOne() - returns populated related property', async () => {
   expect(_testResource?.resourceReference?.refEntityDirect).toBe('Bar');
 });
 
-test('SELECT_IN - .find() - returns undefined related property', async () => {
+test('SELECT_IN - .find()     - returns undefined related property', async () => {
+  console.log('SELECT_IN - find');
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
   
@@ -139,7 +141,8 @@ test('SELECT_IN - .find() - returns undefined related property', async () => {
   expect(_testResource?.resourceReference?.refEntityDirect).toBe(undefined);
 });
 
-test('JOINED - .find() - returns populated related property', async () => {
+test('JOINED    - .find()     - returns populated related property', async () => {
+  console.log('JOINED - find');
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
   
