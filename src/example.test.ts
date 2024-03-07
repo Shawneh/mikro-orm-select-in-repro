@@ -57,7 +57,7 @@ afterAll(async () => {
   await orm.close(true);
 });
 
-test('SELECT_IN - .findOne()  - returns populated related property', async () => {
+test('SELECT_IN - .findOne()  - returns undefined related property', async () => {
   console.log('SELECT_IN - findOne');
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
