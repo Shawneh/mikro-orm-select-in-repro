@@ -47,6 +47,7 @@ beforeAll(async () => {
     dbName: ':memory:',
     entities: [_TestResourceEntity, _TestResourceReferenceEntity],
     debug: ['query', 'query-params'],
+    loadStrategy: LoadStrategy.JOINED,
     allowGlobalContext: true,
   });
   await orm.schema.refreshDatabase();
@@ -56,14 +57,21 @@ afterAll(async () => {
   await orm.close(true);
 });
 
-test('SELECT_IN - .findOne() - returns undefined related property', async () => {
+test('SELECT_IN - .findOne() - returns populated related property', async () => {
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
-  orm.em.create(_TestResourceEntity, { _id, entityDirect: 'Foo', resourceReference: { _id: relationId, refEntityDirect: 'Bar' } });
+  
+  orm.em.create(_TestResourceEntity, {
+    _id,
+    entityDirect: 'Foo',
+    resourceReferenceId: relationId,
+    resourceReference: { _id: relationId, refEntityDirect: 'Bar' }
+  });
+
   await orm.em.flush();
   orm.em.clear();
 
-  const _testResource = await orm.em.findOneOrFail(_TestResourceEntity, { _id }, {
+  const _testResource = await orm.em.findOne(_TestResourceEntity, { _id }, {
     fields: [
       '_id',
       'entityDirect',
@@ -73,18 +81,25 @@ test('SELECT_IN - .findOne() - returns undefined related property', async () => 
   });
   console.log('Select In _testResource: ', _testResource);
 
-  expect(_testResource.entityDirect).toBe('Foo');
-  expect(_testResource.resourceReference?.refEntityDirect).toBe(undefined);
+  expect(_testResource?.entityDirect).toBe('Foo');
+  expect(_testResource?.resourceReference?.refEntityDirect).toBe(undefined);
 });
 
-test('JOINED - .findOne() - returns undefined related property', async () => {
+test('JOINED - .findOne() - returns populated related property', async () => {
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
-  orm.em.create(_TestResourceEntity, { _id, entityDirect: 'Foo', resourceReference: { _id: relationId, refEntityDirect: 'Bar' } });
+
+  orm.em.create(_TestResourceEntity, {
+    _id,
+    entityDirect: 'Foo',
+    resourceReferenceId: relationId,
+    resourceReference: { _id: relationId, refEntityDirect: 'Bar' }
+  });
+
   await orm.em.flush();
   orm.em.clear();
 
-  const _testResource = await orm.em.findOneOrFail(_TestResourceEntity, { _id }, {
+  const _testResource = await orm.em.findOne(_TestResourceEntity, { _id }, {
     fields: [
       '_id',
       'entityDirect',
@@ -92,16 +107,22 @@ test('JOINED - .findOne() - returns undefined related property', async () => {
     ],
     strategy: LoadStrategy.JOINED
   });
-  console.log('Select In _testResource: ', _testResource);
 
-  expect(_testResource.entityDirect).toBe('Foo');
-  expect(_testResource.resourceReference?.refEntityDirect).toBe(undefined);
+  expect(_testResource?.entityDirect).toBe('Foo');
+  expect(_testResource?.resourceReference?.refEntityDirect).toBe('Bar');
 });
 
 test('SELECT_IN - .find() - returns undefined related property', async () => {
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
-  orm.em.create(_TestResourceEntity, { _id, entityDirect: 'Foo', resourceReference: { _id: relationId, refEntityDirect: 'Bar' } });
+  
+  orm.em.create(_TestResourceEntity, {
+    _id,
+    entityDirect: 'Foo',
+    resourceReferenceId: relationId,
+    resourceReference: { _id: relationId, refEntityDirect: 'Bar' }
+  });
+
   await orm.em.flush();
   orm.em.clear();
 
@@ -113,16 +134,22 @@ test('SELECT_IN - .find() - returns undefined related property', async () => {
     ],
     strategy: LoadStrategy.SELECT_IN
   });
-  console.log('Select In _testResource: ', _testResource);
 
   expect(_testResource?.entityDirect).toBe('Foo');
   expect(_testResource?.resourceReference?.refEntityDirect).toBe(undefined);
 });
 
-test('JOINED  - .find() - returns populated related property', async () => {
+test('JOINED - .find() - returns populated related property', async () => {
   const _id = new ObjectId().toString();
   const relationId = new ObjectId().toString();
-  orm.em.create(_TestResourceEntity, { _id, entityDirect: 'Foo', resourceReference: { _id: relationId, refEntityDirect: 'Bar' } });
+  
+  orm.em.create(_TestResourceEntity, {
+    _id,
+    entityDirect: 'Foo',
+    resourceReferenceId: relationId,
+    resourceReference: { _id: relationId, refEntityDirect: 'Bar' }
+  });
+
   await orm.em.flush();
   orm.em.clear();
 
@@ -134,8 +161,7 @@ test('JOINED  - .find() - returns populated related property', async () => {
     ],
     strategy: LoadStrategy.JOINED
   });
-  console.log('Joined _testResource: ', _testResource);
 
   expect(_testResource?.entityDirect).toBe('Foo');
-  expect(_testResource?.resourceReference?.refEntityDirect).toBe(undefined);
+  expect(_testResource?.resourceReference?.refEntityDirect).toBe('Bar');
 });
